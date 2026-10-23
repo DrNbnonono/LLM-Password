@@ -34,21 +34,14 @@ python -m src.cli.generate --provider openrouter --model YOUR_PROVIDER_MODEL_ID 
 - `src/utils/`：CSV 与评分工具。
 - `src/cli/generate.py`：批量采集入口。
 - `scripts/`：数据处理、分析、特征和分类训练脚本，见 [脚本说明](scripts/README.md)。
-- `scripts/remote/`：笔记本代理到服务器的 SSH 隧道、自启管理和 Codex 包装器。
-- `docs/`：实验设计、项目检查和 [服务器配置](docs/remote-codex.md)。
+- `docs/`：实验设计与项目完整性检查。
 
 离线分析依赖另装：`python -m pip install -r requirements-analysis.txt`。DNN 脚本还需要适合目标平台的 TensorFlow。分析脚本依赖本地采集数据，分类预测需要先训练模型；数据、权重与历史图表不随代码包发布。
 
 现有代码应从根目录以模块运行；pyproject.toml 的安装布局尚未校正，不建议以 `pip install .` 作为本项目部署方式。
 
-## 内网服务器 Codex
-
-现已提供 [SSH Doctor 插件](plugins/codex-ssh-doctor/README.md)：自然语言检查连接，明确要求后重启现有代理任务。本地插件市场名称为 `llm-password-tools`。
-
-Windows 本机 HTTP 代理 → SSH 反向隧道 → 服务器 `127.0.0.1:17890`。支持用户登录后等待代理、断线重连。具体运行、自启与卸载见 [配置文档](docs/remote-codex.md)。笔记本离线期间无法持续提供网络出口。
-
 ## 代码发布范围
 
 仓库只包含源代码、依赖清单、无密钥配置模板及必要运行文档。不包含 `.env`、实验口令数据、训练权重、项目书、压缩存档、LaTeX 编译文件和本机登录凭证。
 
-基础验证：`python -m unittest discover -s tests -v`（代理脚本测试需 Windows PowerShell）。这不等于研究 API 或历史分析流程已通过端到端测试。
+目前已完成 Python 源文件语法检查；研究 API 和历史分析流程尚未通过完整端到端测试。

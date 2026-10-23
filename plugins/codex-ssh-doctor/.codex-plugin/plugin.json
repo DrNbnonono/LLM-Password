@@ -1,0 +1,17 @@
+{
+  "name": "codex-ssh-doctor",
+  "version": "0.1.1",
+  "description": "Check a Windows laptop proxy, SSH tunnel and remote Codex; restart the existing proxy only when explicitly requested.",
+  "author": { "name": "DrNbnonono" },
+  "repository": "https://github.com/DrNbnonono/LLM-Password",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "SSH Doctor",
+    "shortDescription": "检查 SSH、笔记本代理和远端 Codex",
+    "longDescription": "逐项诊断本地代理、Windows 后台任务、SSH、远端代理和 Codex 登录；仅在明确要求后重启代理任务。",
+    "developerName": "DrNbnonono",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": ["检查我的服务器 Codex 是否可用", "重启笔记本代理任务，然后检查连接"]
+  }
+}

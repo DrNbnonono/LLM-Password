@@ -43,6 +43,8 @@ python -m src.cli.generate --provider openrouter --model YOUR_PROVIDER_MODEL_ID 
 
 ## 内网服务器 Codex
 
+现已提供 [SSH Doctor 插件](plugins/codex-ssh-doctor/README.md)：自然语言检查连接，明确要求后重启现有代理任务。本地插件市场名称为 `llm-password-tools`。
+
 Windows 本机 HTTP 代理 → SSH 反向隧道 → 服务器 `127.0.0.1:17890`。支持用户登录后等待代理、断线重连。具体运行、自启与卸载见 [配置文档](docs/remote-codex.md)。笔记本离线期间无法持续提供网络出口。
 
 ## 代码发布范围

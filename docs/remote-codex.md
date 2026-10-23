@@ -27,7 +27,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\remote\Set-CodexPr
 Get-ScheduledTaskInfo -TaskName Codex-Laptop-Proxy
 ```
 
-脚本内容直接保存在当前用户的计划任务中，避免后台进程无法访问安装程序所见文件的问题。任务名为 `Codex-Laptop-Proxy`，使用当前用户交互登录权限，无需保存账户密码。修改脚本或端口后重新执行安装命令。卸载：
+脚本内容直接保存在当前用户的计划任务中，避免后台进程无法访问安装程序所见文件的问题。任务名为 `Codex-Laptop-Proxy`，使用当前用户登录权限，无需保存账户密码。启动入口使用已安装的 `pythonw.exe`（需在 PATH 中），为 PowerShell 和 SSH 指定无窗口启动及隐藏设置，因此不显示终端窗口。修改脚本或端口后重新执行安装命令。安装更新和卸载会根据进程身份清理此任务的子进程，避免留下旧 SSH 占用端口。
+
+这是 Windows 登录后自动启动；开机但未登录时不会运行。等待本机代理启动后再连接，笔记本注销、休眠或关机会中断通道。任务失败时每分钟重启，最多 3 次；SSH 断线则由脚本持续重试。可在任务管理器中看到 pythonw、PowerShell 和 SSH 进程；隐藏窗口不能阻止手动结束这些后台进程。普通终端窗口的关闭不影响该任务。
+
+卸载：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\remote\Set-CodexProxyAutostart.ps1 -Remove

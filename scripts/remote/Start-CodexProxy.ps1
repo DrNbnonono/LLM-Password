@@ -27,8 +27,23 @@ try {
         } finally { $client.Dispose() }
         if ($ready) {
             Write-Host "$(Get-Date -Format s) Connecting proxy tunnel to $Server."
-            & ssh.exe @sshArgs
-            $tunnelExit = $LASTEXITCODE
+            $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+            $startInfo.FileName = (Get-Command ssh.exe -ErrorAction Stop).Source
+            # All arguments are fixed options, validated numeric ports or a validated host.
+            $startInfo.Arguments = $sshArgs -join ' '
+            $startInfo.UseShellExecute = $false
+            $startInfo.CreateNoWindow = $true
+            $sshProcess = New-Object System.Diagnostics.Process
+            $sshProcess.StartInfo = $startInfo
+            $sshStarted = $false
+            try {
+                $sshStarted = $sshProcess.Start()
+                $sshProcess.WaitForExit()
+                $tunnelExit = $sshProcess.ExitCode
+            } finally {
+                if ($sshStarted -and -not $sshProcess.HasExited) { $sshProcess.Kill() }
+                $sshProcess.Dispose()
+            }
             Write-Host "$(Get-Date -Format s) SSH exited: $tunnelExit"
             if ($Once) { exit $tunnelExit }
         } elseif ($Once) { exit 2 }

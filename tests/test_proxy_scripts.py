@@ -29,12 +29,21 @@ class TunnelTests(unittest.TestCase):
     def test_reinstall_stops_old_task_before_registering(self):
         with tempfile.TemporaryDirectory() as tmp:
             installer = str(ROOT / 'scripts/remote/Set-CodexProxyAutostart.ps1').replace("'", "''")
-            cmd = """
+            cmd = r"""
 $ErrorActionPreference='Stop'
 $global:events=@()
-function Get-ScheduledTask { [pscustomobject]@{State='Ready'} }
+$token='A'*140
+$created=Get-Date '2026-10-23'
+$global:fakeProcesses=@(
+ [pscustomobject]@{ProcessId=1001;ParentProcessId=10;Name='pythonw.exe';CommandLine=$token;CreationDate=$created},
+ [pscustomobject]@{ProcessId=1002;ParentProcessId=1001;Name='powershell.exe';CommandLine=$token;CreationDate=$created},
+ [pscustomobject]@{ProcessId=1003;ParentProcessId=1002;Name='ssh.exe';CommandLine='ssh';CreationDate=$created}
+)
+function Get-ScheduledTask { [pscustomobject]@{State='Ready';Actions=@([pscustomobject]@{Arguments=$token})} }
+function Get-CimInstance { param($ClassName,$Filter); if($Filter -match 'ProcessId=(\d+)') { $global:fakeProcesses | Where-Object ProcessId -eq ([int]$Matches[1]) } else { $global:fakeProcesses } }
+function Stop-Process { param($Id,[switch]$Force); $global:events+="kill:$Id" }
 function Stop-ScheduledTask { $global:events+='stop' }
-function New-ScheduledTaskAction { param($Execute,$Argument); $global:taskArgs=$Argument; 'action' }
+function New-ScheduledTaskAction { param($Execute,$Argument); $global:taskArgs=$Argument; $global:taskExe=$Execute; 'action' }
 function New-ScheduledTaskTrigger { 'trigger' }
 function New-ScheduledTaskPrincipal { 'principal' }
 function New-ScheduledTaskSettingsSet { 'settings' }
@@ -44,11 +53,14 @@ $env:LOCALAPPDATA='TEMP_DIR'
 & 'INSTALLER'
 $global:events -join ','
 $global:taskArgs
+$global:taskExe
 """.replace('TEMP_DIR', tmp.replace("'", "''")).replace('INSTALLER', installer)
             result = subprocess.run(['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', cmd], capture_output=True, text=True, errors='replace')
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn('stop,register,start', result.stdout)
+            self.assertIn('stop,kill:1003,kill:1002,kill:1001,register,start', result.stdout)
             self.assertIn('-EncodedCommand', result.stdout)
+            self.assertIn('pythonw.exe', result.stdout)
+            self.assertIn('CREATE_NO_WINDOW', result.stdout)
 
 if __name__ == "__main__":
     unittest.main()

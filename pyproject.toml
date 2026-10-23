@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-password-eval"
+version = "0.1.0"
+description = "LLM-generated password security evaluation and pattern recognition"
+requires-python = ">=3.9"
+
+[tool.setuptools.packages.find]
+where = ["src"]

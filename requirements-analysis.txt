@@ -1,0 +1,10 @@
+# Optional historical analysis/training scripts; not required by the API collector.
+-r requirements.txt
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+seaborn
+joblib
+# DNN training additionally requires tensorflow; install a version for your platform.
